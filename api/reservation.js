@@ -1,3 +1,12 @@
+const {
+  insertInquiry,
+  isValidDate,
+  isValidEmail,
+  readBody,
+  respond,
+  sendEmail,
+} = require("./_lib");
+
 const packageDetails = {
   executive: { name: "The Executive", category: "Corporate events" },
   "corporate-pinnacle": { name: "The Corporate Pinnacle", category: "Corporate events" },
@@ -10,28 +19,6 @@ const packageDetails = {
   "mega-arena-production": { name: "The Mega Arena Production", category: "Concerts & festivals" },
 };
 
-const respond = (response, statusCode, payload) => {
-  response.statusCode = statusCode;
-  response.setHeader("Content-Type", "application/json; charset=utf-8");
-  response.end(JSON.stringify(payload));
-};
-
-const getFormData = (request) => {
-  if (typeof request.body === "string") {
-    if (request.headers["content-type"]?.includes("application/json")) {
-      return JSON.parse(request.body);
-    }
-    return Object.fromEntries(new URLSearchParams(request.body));
-  }
-  return request.body;
-};
-
-const isValidDate = (value) => {
-  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-  const parsedDate = new Date(`${value}T00:00:00.000Z`);
-  return Number.isFinite(parsedDate.getTime()) && parsedDate.toISOString().slice(0, 10) === value;
-};
-
 module.exports = async (request, response) => {
   if (request.method !== "POST") {
     response.setHeader("Allow", "POST");
@@ -39,19 +26,11 @@ module.exports = async (request, response) => {
     return;
   }
 
-  let form;
-  try {
-    form = getFormData(request);
-  } catch {
-    respond(response, 400, { error: "Invalid reservation request." });
+  const form = readBody(request);
+  if (!form) {
+    respond(response, 400, { error: "Enter valid reservation details." });
     return;
   }
-
-  if (!form || typeof form !== "object" || Array.isArray(form)) {
-    respond(response, 400, { error: "Invalid reservation request." });
-    return;
-  }
-
   const customerName = typeof form.customer_name === "string" ? form.customer_name.trim() : "";
   const mobileNumber = typeof form.mobile_number === "string" ? form.mobile_number.trim() : "";
   const email = typeof form.email === "string" ? form.email.trim() : "";
@@ -59,16 +38,15 @@ module.exports = async (request, response) => {
   const eventEndDate = typeof form.event_end_date === "string" ? form.event_end_date : "";
   const customerComments =
     typeof form.customer_comments === "string" ? form.customer_comments.trim() : "";
-  const selectedPackage =
-    typeof form.package === "string" ? packageDetails[form.package] : undefined;
+  const packageKey = typeof form.package === "string" ? form.package : "";
+  const selectedPackage = packageDetails[packageKey];
 
   if (
     !selectedPackage ||
     customerName.length < 1 ||
     customerName.length > 120 ||
     !/^[0-9\s+()-]{7,20}$/.test(mobileNumber) ||
-    email.length > 254 ||
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
+    !isValidEmail(email) ||
     !isValidDate(eventStartDate) ||
     !isValidDate(eventEndDate) ||
     eventEndDate < eventStartDate ||
@@ -80,16 +58,26 @@ module.exports = async (request, response) => {
     return;
   }
 
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.RESEND_FROM_EMAIL;
-  if (!apiKey || !from) {
+  try {
+    await insertInquiry({
+      kind: "reservation",
+      name: customerName,
+      email,
+      phone: mobileNumber,
+      package_name: selectedPackage.name,
+      event_start_date: eventStartDate,
+      event_end_date: eventEndDate,
+      message: customerComments,
+      status: "new",
+    });
+  } catch (error) {
     respond(response, 503, {
-      error: "Reservation email is not configured. Please contact Dream Events directly.",
+      error: error instanceof Error ? error.message : "Your request could not be saved. Please try again.",
     });
     return;
   }
 
-  const message = [
+  const details = [
     "A new package reservation request was submitted.",
     "",
     `Package: ${selectedPackage.name}`,
@@ -100,42 +88,40 @@ module.exports = async (request, response) => {
     `Email: ${email}`,
     `Customer comments: ${customerComments || "None"}`,
   ].join("\n");
-
-  let emailResponse;
+  let notificationsSent = true;
   try {
-    emailResponse = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from,
-        to: [process.env.RESERVATION_EMAIL_TO || "dreammakerofc@gmail.com"],
-        reply_to: email,
-        subject: `Reservation request: ${selectedPackage.name}`,
-        text: message,
-      }),
+    await sendEmail({
+      to: process.env.RESERVATION_EMAIL_TO || "dreammakerofc@gmail.com",
+      subject: `Reservation request: ${selectedPackage.name}`,
+      text: details,
+      replyTo: email,
+    });
+    await sendEmail({
+      to: email,
+      subject: "We received your reservation request — Dream Events",
+      text: `Hi ${customerName},\n\nThank you for your interest in ${selectedPackage.name}. We’ve received your event dates and our team will be in touch to discuss availability and next steps.\n\nDream Events`,
     });
   } catch (error) {
-    console.error("Unable to reach the reservation email provider:", error);
-    respond(response, 502, { error: "The email service is temporarily unavailable. Please try again." });
-    return;
-  }
-
-  if (!emailResponse.ok) {
-    const providerError = await emailResponse.text();
-    console.error("Reservation email provider rejected the request:", providerError);
-    respond(response, 502, { error: "The email service could not send your request. Please try again." });
-    return;
+    notificationsSent = false;
+    console.error("A reservation was saved, but email notification failed:", error.message);
   }
 
   if ((request.headers.accept || "").includes("application/json")) {
-    respond(response, 200, { status: "sent" });
+    respond(response, notificationsSent ? 200 : 202, {
+      status: notificationsSent ? "sent" : "saved_notification_failed",
+      message: notificationsSent
+        ? "Your request has been received. We’ll be in touch soon."
+        : "Your request was saved, but email confirmation is temporarily unavailable. Please contact dreammakerofc@gmail.com if your reservation is urgent.",
+    });
     return;
   }
 
   response.statusCode = 303;
-  response.setHeader("Location", "/reservation-success.html");
+  response.setHeader(
+    "Location",
+    notificationsSent
+      ? "/reservation-success.html"
+      : "/reservation-success.html?notification=unavailable",
+  );
   response.end();
 };

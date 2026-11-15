@@ -5,10 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Dream Events creates unforgettable concerts, festivals, corporate experiences and weddings across Sri Lanka."
+      content="Plan concerts, festivals, corporate events and weddings with Dream Events, an event planning team based in Southern Province, Sri Lanka."
     />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <link rel="canonical" href="https://dream-events-eta.vercel.app/" />
+    <meta property="og:title" content="Event Planner in Sri Lanka | Dream Events" />
+    <meta property="og:description" content="Plan concerts, festivals, corporate events and weddings with Dream Events, an event planning team based in Southern Province, Sri Lanka." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Dream Events" />
+    <meta property="og:locale" content="en_LK" />
+    <meta property="og:url" content="https://dream-events-eta.vercel.app/" />
+    <meta property="og:image" content="https://dream-events-eta.vercel.app/assets/mihiraviye/crowd-from-stage.jpeg" />
+    <meta property="og:image:alt" content="A performer and a crowd sharing a moment at the Mihiraviye festival in Sri Lanka" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Event Planner in Sri Lanka | Dream Events" />
+    <meta name="twitter:description" content="Plan concerts, festivals, corporate events and weddings with Dream Events in Southern Province, Sri Lanka." />
+    <meta name="twitter:image" content="https://dream-events-eta.vercel.app/assets/mihiraviye/crowd-from-stage.jpeg" />
+    <meta name="twitter:image:alt" content="A performer and a crowd sharing a moment at the Mihiraviye festival in Sri Lanka" />
     <meta name="theme-color" content="#ffffff" />
-    <title>Dream Events — Make your moment mean more</title>
+    <link rel="icon" type="image/png" href="assets/dream-events-logo.png" />
+    <title>Event Planner in Sri Lanka | Dream Events</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -17,6 +33,42 @@
     />
     <link rel="stylesheet" href="styles.css" />
     <script src="script.js" defer></script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "@id": "https://dream-events-eta.vercel.app/#organization",
+        "name": "Dream Events",
+        "url": "https://dream-events-eta.vercel.app/",
+        "logo": "https://dream-events-eta.vercel.app/assets/dream-events-logo.png",
+        "image": "https://dream-events-eta.vercel.app/assets/mihiraviye/crowd-from-stage.jpeg",
+        "email": "dreammakerofc@gmail.com",
+        "foundingDate": "2024",
+        "description": "Dream Events plans concerts, festivals, corporate experiences, weddings, and celebrations in Sri Lanka.",
+        "areaServed": {
+          "@type": "AdministrativeArea",
+          "name": "Southern Province, Sri Lanka"
+        },
+        "sameAs": [
+          "https://www.instagram.com/dream_events.lk/",
+          "https://www.facebook.com/share/1K8vCjDfs1/",
+          "https://www.instagram.com/mihiraviye/"
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "@id": "https://dream-events-eta.vercel.app/#website",
+        "url": "https://dream-events-eta.vercel.app/",
+        "name": "Dream Events",
+        "inLanguage": "en-LK",
+        "publisher": {
+          "@id": "https://dream-events-eta.vercel.app/#organization"
+        }
+      }
+    </script>
   </head>
   <body>
     <header class="site-header">
@@ -30,9 +82,11 @@
       <nav class="primary-nav" id="primary-nav" aria-label="Main navigation">
         <a href="story.html">Our story</a>
         <a href="investor-relations.html">Investor relations</a>
+        <a href="#upcoming-events">Events</a>
         <a href="#services">What we do</a>
         <a href="packages.html">Packages</a>
         <a href="#past-events">Our work</a>
+        <a href="#faq">FAQs</a>
         <a class="nav-cta" href="#contact">Let’s talk <span aria-hidden="true">↗</span></a>
       </nav>
     </header>
@@ -43,7 +97,7 @@
           <p class="eyebrow"><span class="eyebrow-line"></span> Southern Province, Sri Lanka</p>
           <h1>Make your<br />moment mean <em>more.</em></h1>
           <p class="hero-description">
-            Big feelings. Beautiful details. We bring people together through events worth remembering.
+            Dream Events plans concerts, festivals, corporate experiences, and weddings across Sri Lanka—creating moments worth remembering.
           </p>
           <div class="hero-actions">
             <a class="button button-dark" href="#contact">Let’s create something <span aria-hidden="true">↗</span></a>
@@ -87,7 +141,11 @@
               and a spark that grew into something bigger. Since 2024, we’ve been creating
               experiences across Sri Lanka that stay with you long after the last song.
             </p>
-            <a class="round-link" href="story.html" aria-label="Read the Dream Events story"><span>Read our story</span><b>↗</b></a>
+            <a class="round-link" href="story.html" aria-label="Read the Dream Events story">
+              <img class="round-link-butterfly" src="assets/butterfly.svg" alt="" aria-hidden="true" />
+              <span>Read our story</span>
+              <b aria-hidden="true">↗</b>
+            </a>
           </div>
           <aside class="butterfly-story">
             <span class="butterfly-story-mark" aria-hidden="true">
@@ -110,6 +168,24 @@
           <div class="number-divider"></div>
           <div class="number-item reveal"><strong>2024</strong><span>the year the dream began</span></div>
         </div>
+      </section>
+
+      <section class="upcoming-events section-wrap" id="upcoming-events" aria-labelledby="upcoming-events-heading">
+        <div class="section-kicker reveal">WHAT’S COMING UP</div>
+        <div class="events-heading-row">
+          <div>
+            <h2 id="upcoming-events-heading" class="reveal">Meet us at an<br /><em>upcoming event.</em></h2>
+            <p class="events-intro reveal">Browse our published event dates. Check back for new announcements.</p>
+          </div>
+          <div class="calendar-controls reveal">
+            <button type="button" class="calendar-nav" id="calendar-previous" aria-label="Previous month">←</button>
+            <p class="calendar-month" id="calendar-month" aria-live="polite"></p>
+            <button type="button" class="calendar-nav" id="calendar-next" aria-label="Next month">→</button>
+          </div>
+        </div>
+        <div class="calendar-grid" id="event-calendar" role="grid" aria-label="Upcoming event calendar"></div>
+        <p class="content-status" id="calendar-status" role="status" aria-live="polite">Loading upcoming events…</p>
+        <div class="event-card-grid" id="event-list" aria-live="polite"></div>
       </section>
 
       <section class="services section-wrap" id="services">
@@ -248,60 +324,78 @@
             <p class="gallery-intro reveal">From gala nights and lively festivals to personal celebrations, every event has its own story.</p>
           </div>
         </div>
+        <div class="portfolio-filters reveal" role="group" aria-label="Filter past events">
+          <button type="button" data-portfolio-filter="all" aria-pressed="true">All events</button>
+          <button type="button" data-portfolio-filter="concerts" aria-pressed="false">Concerts</button>
+          <button type="button" data-portfolio-filter="festivals" aria-pressed="false">Festivals</button>
+          <button type="button" data-portfolio-filter="corporate" aria-pressed="false">Corporate</button>
+          <button type="button" data-portfolio-filter="weddings" aria-pressed="false">Weddings</button>
+        </div>
         <div class="past-events-photo-grid">
-          <figure class="portfolio-photo past-event-featured reveal">
+          <figure class="portfolio-photo past-event-featured reveal" data-category="corporate">
             <img src="assets/past-events/gala-team.jpeg" alt="Guests and the event team celebrate together at a formal gala" loading="lazy" />
             <figcaption><span>A team to celebrate</span></figcaption>
           </figure>
-          <figure class="portfolio-photo past-event-awards reveal">
+          <figure class="portfolio-photo past-event-awards reveal" data-category="corporate">
             <img src="assets/past-events/gala-awards.jpeg" alt="Guests celebrating together during a formal awards event" loading="lazy" />
             <figcaption><span>Recognising every achievement</span></figcaption>
           </figure>
-          <figure class="portfolio-photo past-event-performers reveal">
+          <figure class="portfolio-photo past-event-performers reveal" data-category="corporate">
             <img src="assets/past-events/gala-performers.jpeg" alt="Two performers singing on stage at an evening event" loading="lazy" />
             <figcaption><span>Taking the stage together</span></figcaption>
           </figure>
-          <figure class="portfolio-photo past-event-dance reveal">
+          <figure class="portfolio-photo past-event-dance reveal" data-category="corporate">
             <img src="assets/past-events/gala-dance-floor.jpeg" alt="Guests enjoying the dance floor at a gala" loading="lazy" />
             <figcaption><span>A dance floor full of joy</span></figcaption>
           </figure>
-          <figure class="portfolio-photo past-event-street reveal">
+          <figure class="portfolio-photo past-event-street reveal" data-category="festivals">
             <img src="assets/past-events/dutchmans-street.jpeg" alt="A warmly lit outdoor event space on Dutchman's Street" loading="lazy" />
             <figcaption><span>An evening on Dutchman's Street</span></figcaption>
           </figure>
-          <figure class="portfolio-photo past-event-market reveal">
+          <figure class="portfolio-photo past-event-market reveal" data-category="festivals">
             <img src="assets/past-events/dutchmans-market.jpeg" alt="Guests exploring a lively night market event" loading="lazy" />
             <figcaption><span>Market lights after dark</span></figcaption>
           </figure>
-          <figure class="portfolio-photo past-event-opening reveal">
+          <figure class="portfolio-photo past-event-opening reveal" data-category="festivals">
             <img src="assets/past-events/festival-opening.jpeg" alt="Guests taking part in a colourful outdoor festival opening" loading="lazy" />
             <figcaption><span>A joyful opening moment</span></figcaption>
           </figure>
-          <figure class="portfolio-photo past-event-powder reveal">
+          <figure class="portfolio-photo past-event-powder reveal" data-category="festivals">
             <img src="assets/past-events/colour-festival-powder.jpeg" alt="Festivalgoers celebrating as bright colour powder fills the air" loading="lazy" />
             <figcaption><span>Colour in every direction</span></figcaption>
           </figure>
-          <figure class="portfolio-photo past-event-dancers reveal">
+          <figure class="portfolio-photo past-event-dancers reveal" data-category="festivals">
             <img src="assets/past-events/colour-festival-dancers.jpeg" alt="Traditional dancers perform at an outdoor colour festival" loading="lazy" />
             <figcaption><span>Dancing in full colour</span></figcaption>
           </figure>
-          <figure class="portfolio-photo past-event-concert reveal">
+          <figure class="portfolio-photo past-event-concert reveal" data-category="concerts">
             <img src="assets/past-events/colour-festival-concert.jpeg" alt="A crowd gathers for a live outdoor festival performance" loading="lazy" />
             <figcaption><span>The festival comes alive</span></figcaption>
           </figure>
-          <figure class="portfolio-photo past-event-wedding reveal">
+          <figure class="portfolio-photo past-event-wedding reveal" data-category="weddings">
             <img src="assets/past-events/wedding-ring-moment.jpeg" alt="A close-up of a ring during a personal celebration" loading="lazy" />
             <figcaption><span>A moment to treasure</span></figcaption>
           </figure>
-          <figure class="portfolio-photo past-event-sign reveal">
+          <figure class="portfolio-photo past-event-sign reveal" data-category="festivals">
             <img src="assets/past-events/colours-of-love-sign.jpeg" alt="Illuminated Colours of Love event sign at night" loading="lazy" />
             <figcaption><span>Colours of Love, lit up</span></figcaption>
           </figure>
         </div>
       </section>
 
+      <section class="testimonials section-wrap" id="testimonials" aria-labelledby="testimonials-heading">
+        <div class="section-kicker reveal"><span>06</span> Kind words, shared moments</div>
+        <div class="testimonials-heading-row">
+          <h2 id="testimonials-heading" class="reveal">Stories from the<br /><em>people who were there.</em></h2>
+          <p class="reveal">We’ll share client feedback here once it’s been approved for publication.</p>
+        </div>
+        <div class="testimonial-grid" id="testimonial-list"></div>
+        <p class="content-status" id="testimonial-status" role="status" aria-live="polite">Loading client stories…</p>
+        <div class="client-logo-row" id="client-logos" aria-label="Published partners"></div>
+      </section>
+
       <section class="approach section-wrap">
-        <div class="section-kicker reveal"><span>06</span> The feeling is in the details</div>
+        <div class="section-kicker reveal"><span>07</span> The feeling is in the details</div>
         <div class="approach-content">
           <h2 class="reveal">From the first<br /><em>hello to the encore.</em></h2>
           <div class="approach-steps">
@@ -318,6 +412,39 @@
         </div>
       </section>
 
+      <section class="faq-section" id="faq" aria-labelledby="faq-heading">
+        <div class="faq-inner">
+          <div class="section-kicker reveal"><span>08</span> A few helpful answers</div>
+          <div class="faq-heading reveal">
+            <h2 id="faq-heading">Good to know<br /><em>before we begin.</em></h2>
+            <p>Have another question? Send us an inquiry and our team will be happy to help.</p>
+            <a class="text-link" href="#contact">Talk to Dream Events <span aria-hidden="true">↗</span></a>
+          </div>
+          <div class="faq-list">
+            <details class="faq-item">
+              <summary>What kinds of events do you organize?</summary>
+              <p>We plan concerts and festivals, corporate experiences, weddings, and personal celebrations. Tell us what you have in mind and we’ll discuss the right approach.</p>
+            </details>
+            <details class="faq-item">
+              <summary>Can a package be tailored to my event?</summary>
+              <p>Yes. Our packages are starting points. Share your guest count, priorities, and event details so our team can discuss a suitable plan.</p>
+            </details>
+            <details class="faq-item">
+              <summary>How do I reserve a package?</summary>
+              <p>Choose a package, submit your contact details and event dates, and our team will follow up to discuss availability and next steps. A request is not a confirmed booking.</p>
+            </details>
+            <details class="faq-item">
+              <summary>Where do you organize events?</summary>
+              <p>Dream Events is based in Sri Lanka’s Southern Province. Include your preferred location in your inquiry and we’ll let you know whether we can support it.</p>
+            </details>
+            <details class="faq-item">
+              <summary>How can my organization discuss a partnership?</summary>
+              <p>Use the partnership inquiry form on our Investor Relations page to share your organization and goals. Our team will review your message and get back to you.</p>
+            </details>
+          </div>
+        </div>
+      </section>
+
       <section class="contact" id="contact">
         <div class="contact-decoration" aria-hidden="true">✳</div>
         <p class="eyebrow reveal"><span class="eyebrow-line"></span> YOUR IDEA HAS A PLACE HERE</p>
@@ -329,6 +456,49 @@
           target="_blank"
           rel="noopener noreferrer"
         >Start a conversation <span aria-hidden="true">↗</span></a>
+        <div class="public-inquiry-panel reveal">
+          <h3>Or send us an event inquiry online</h3>
+          <form id="event-inquiry-form" class="public-inquiry-form">
+            <label class="reservation-field">
+              <span>Your name</span>
+              <input name="name" autocomplete="name" maxlength="120" required />
+            </label>
+            <label class="reservation-field">
+              <span>Email address</span>
+              <input type="email" name="email" autocomplete="email" maxlength="254" required />
+            </label>
+            <label class="reservation-field">
+              <span>Mobile number (optional)</span>
+              <input type="tel" name="phone" autocomplete="tel" inputmode="tel" />
+            </label>
+            <label class="reservation-field">
+              <span>Event type</span>
+              <select name="event_type" required>
+                <option value="">Choose an event type</option>
+                <option value="Concert or festival">Concert or festival</option>
+                <option value="Corporate event">Corporate event</option>
+                <option value="Wedding or celebration">Wedding or celebration</option>
+                <option value="Other">Other</option>
+              </select>
+            </label>
+            <label class="reservation-field">
+              <span>Preferred date (optional)</span>
+              <input type="date" name="preferred_date" />
+            </label>
+            <label class="reservation-field">
+              <span>Preferred location (optional)</span>
+              <input name="venue" maxlength="160" placeholder="Town or venue" />
+            </label>
+            <label class="reservation-field inquiry-message-field">
+              <span>Tell us about your idea</span>
+              <textarea name="message" rows="4" maxlength="2000" required></textarea>
+            </label>
+            <input type="hidden" name="kind" value="event" />
+            <p class="inquiry-status" role="status" aria-live="polite" hidden></p>
+            <button class="button button-dark reservation-submit" type="submit">Send event inquiry <span aria-hidden="true">↗</span></button>
+          </form>
+        </div>
+        <h3 class="founder-contacts-heading reveal">Contact our founders</h3>
         <div class="founder-contacts reveal" aria-label="Message a Dream Events co-founder on WhatsApp">
           <a href="https://wa.me/94710710706"><span>Seniru Jayawardana</span><strong>+94 71 071 0706</strong></a>
           <a href="https://wa.me/94768101177"><span>Rishitha Rupasinghe</span><strong>+94 76 810 1177</strong></a>
@@ -338,17 +508,41 @@
     </main>
 
     <footer class="site-footer">
-      <a class="brand footer-brand" href="#home" aria-label="Dream Events home">
-        <img class="brand-logo" src="assets/dream-events-logo.png" alt="Dream Events" />
-      </a>
-      <p>Good people. Great moments. That’s the dream.</p>
-      <div class="footer-links">
-        <a href="packages.html">Packages <span>↗</span></a>
-        <a href="https://www.instagram.com/dream_events.lk?psln=dHlvNXVmNWoxNWkz" target="_blank" rel="noopener noreferrer">Instagram <span>↗</span></a>
-        <a href="https://www.facebook.com/share/1K8vCjDfs1/" target="_blank" rel="noopener noreferrer">Facebook <span>↗</span></a>
-        <a href="https://www.instagram.com/mihiraviye?mdxt=MTQ2Z2MyYmY5OGs5bw==" target="_blank" rel="noopener noreferrer">Mihiraviye <span>↗</span></a>
+      <div class="footer-main">
+        <div class="footer-about">
+          <a class="brand footer-brand" href="#home" aria-label="Dream Events home">
+            <img class="brand-logo" src="assets/dream-events-logo.png" alt="Dream Events" />
+          </a>
+          <p>Creating unforgettable events and shared moments from the Southern Province, Sri Lanka.</p>
+          <div class="footer-socials" aria-label="Social media">
+            <a href="https://www.instagram.com/dream_events.lk?psln=dHlvNXVmNWoxNWkz" aria-label="Dream Events on Instagram" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle class="footer-icon-fill" cx="17.7" cy="6.7" r="1"></circle></svg>
+            </a>
+            <a href="https://www.facebook.com/share/1K8vCjDfs1/" aria-label="Dream Events on Facebook" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path class="footer-icon-fill" d="M13.5 21v-8h2.7l.4-3.1h-3.1v-2c0-.9.3-1.6 1.6-1.6h1.7V3.5c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.2H7.3V13h2.8v8z"></path></svg>
+            </a>
+            <a href="https://www.instagram.com/mihiraviye?mdxt=MTQ2Z2MyYmY5OGs5bw==" aria-label="Mihiraviye on Instagram" target="_blank" rel="noopener noreferrer">
+              <img src="assets/butterfly.svg" alt="" aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+        <nav class="footer-explore" aria-label="Explore">
+          <h2>Explore</h2>
+          <a href="#home">Home</a>
+          <a href="packages.html">Packages</a>
+          <a href="#upcoming-events">Upcoming events</a>
+          <a href="#faq">FAQs</a>
+          <a href="#contact">Contact</a>
+          <a href="#contact">Meet the founders</a>
+          <a href="story.html">Our story</a>
+          <a href="investor-relations.html">Investor relations</a>
+          <a href="admin.html">Admin sign in</a>
+        </nav>
       </div>
-      <span class="copyright">© <span id="year">2025</span> Dream Events · Sri Lanka</span>
+      <div class="footer-bottom">
+        <span class="copyright">© <span id="year">2026</span> Dream Events. All rights reserved.</span>
+        <span class="footer-location">Southern Province, Sri Lanka</span>
+      </div>
     </footer>
   </body>
 </html>

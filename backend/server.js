@@ -3,6 +3,13 @@ const http = require("node:http");
 const path = require("node:path");
 
 const reservationHandler = require("../api/reservation");
+const apiHandlers = {
+  "/api/admin": require("../api/admin"),
+  "/api/admin-auth": require("../api/admin-auth"),
+  "/api/content": require("../api/content"),
+  "/api/inquiry": require("../api/inquiry"),
+  "/api/reservation": reservationHandler,
+};
 const frontendRoot = path.resolve(__dirname, "..", "frontend");
 const port = Number(process.env.PORT || 3000);
 
@@ -20,7 +27,9 @@ const contentTypes = {
   ".json": "application/json; charset=utf-8",
   ".png": "image/png",
   ".svg": "image/svg+xml",
+  ".txt": "text/plain; charset=utf-8",
   ".webp": "image/webp",
+  ".xml": "application/xml; charset=utf-8",
 };
 
 const sendText = (response, statusCode, message) => {
@@ -37,36 +46,42 @@ const server = http.createServer((request, response) => {
     return;
   }
 
-  if (pathname === "/api/reservation") {
-    if (request.method !== "POST") {
-      response.writeHead(405, { Allow: "POST", "Content-Type": "text/plain; charset=utf-8" });
-      response.end("Method not allowed.");
-      return;
-    }
-
+  if (apiHandlers[pathname]) {
+    const handler = apiHandlers[pathname];
     let body = "";
     let bodyTooLarge = false;
-    request.on("data", (chunk) => {
-      if (bodyTooLarge) return;
-      body += chunk;
-      if (Buffer.byteLength(body) > 10_000) {
-        bodyTooLarge = true;
-        sendText(response, 413, "Request is too large.");
-        request.resume();
-      }
-    });
-    request.on("end", () => {
-      if (bodyTooLarge) return;
-      request.body = body;
-      reservationHandler(request, response).catch((error) => {
-        console.error("Unable to process reservation request:", error);
+    if (["POST", "PATCH", "PUT", "DELETE"].includes(request.method)) {
+      request.on("data", (chunk) => {
+        if (bodyTooLarge) return;
+        body += chunk;
+        if (Buffer.byteLength(body) > 10_000) {
+          bodyTooLarge = true;
+          sendText(response, 413, "Request is too large.");
+          request.resume();
+        }
+      });
+      request.on("end", () => {
+        if (bodyTooLarge) return;
+        request.body = body;
+        Promise.resolve().then(() => handler(request, response)).catch((error) => {
+          console.error("Unable to process API request:", error);
+          if (response.headersSent) {
+            response.destroy(error);
+          } else {
+            sendText(response, 500, "Unable to process API request.");
+          }
+        });
+      });
+    } else {
+      Promise.resolve().then(() => handler(request, response)).catch((error) => {
+        console.error("Unable to process API request:", error);
         if (response.headersSent) {
           response.destroy(error);
         } else {
-          sendText(response, 500, "Unable to process reservation request.");
+          sendText(response, 500, "Unable to process API request.");
         }
       });
-    });
+    }
     return;
   }
 
