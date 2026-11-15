@@ -86,6 +86,23 @@
                 <span>Email address</span>
                 <input type="email" name="email" autocomplete="email" required />
               </label>
+              <label class="reservation-field">
+                <span>Event start date</span>
+                <input type="date" name="event_start_date" required />
+              </label>
+              <label class="reservation-field">
+                <span>Event end date</span>
+                <input type="date" name="event_end_date" required />
+              </label>
+              <label class="reservation-field">
+                <span>Additional details or comments (optional)</span>
+                <textarea
+                  name="customer_comments"
+                  rows="4"
+                  maxlength="2000"
+                  placeholder="Share any extra details that will help us plan your event."
+                ></textarea>
+              </label>
 
               <p class="reservation-privacy">
                 Your details will be sent securely to Dream Events so our team can follow up.

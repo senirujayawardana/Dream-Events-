@@ -325,8 +325,9 @@ h1 em, h2 em { color: var(--teal); font-weight: 500; }
 .reservation-form-intro { margin-bottom: 24px; color: var(--muted); line-height: 1.7; }
 #reservation-form { display: grid; gap: 18px; }
 .reservation-field { display: grid; gap: 8px; font-size: 13px; font-weight: 700; }
-.reservation-field input { width: 100%; min-height: 48px; padding: 12px 14px; border: 1px solid rgba(38,63,94,.22); border-radius: 0; background: white; color: var(--ink); font: 500 15px var(--sans); }
-.reservation-field input:focus { outline: 2px solid rgba(49,139,139,.35); border-color: var(--teal); }
+.reservation-field input, .reservation-field textarea { width: 100%; min-height: 48px; padding: 12px 14px; border: 1px solid rgba(38,63,94,.22); border-radius: 0; background: white; color: var(--ink); font: 500 15px var(--sans); }
+.reservation-field textarea { resize: vertical; }
+.reservation-field input:focus, .reservation-field textarea:focus { outline: 2px solid rgba(49,139,139,.35); border-color: var(--teal); }
 .reservation-privacy { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
 .reservation-status { margin: 0; padding: 12px 14px; background: #fff3e5; color: #724a19; font-size: 13px; line-height: 1.6; }
 .reservation-submit { justify-self: start; border: 0; cursor: pointer; }

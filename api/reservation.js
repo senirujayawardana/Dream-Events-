@@ -26,6 +26,12 @@ const getFormData = (request) => {
   return request.body;
 };
 
+const isValidDate = (value) => {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const parsedDate = new Date(`${value}T00:00:00.000Z`);
+  return Number.isFinite(parsedDate.getTime()) && parsedDate.toISOString().slice(0, 10) === value;
+};
+
 module.exports = async (request, response) => {
   if (request.method !== "POST") {
     response.setHeader("Allow", "POST");
@@ -49,6 +55,10 @@ module.exports = async (request, response) => {
   const customerName = typeof form.customer_name === "string" ? form.customer_name.trim() : "";
   const mobileNumber = typeof form.mobile_number === "string" ? form.mobile_number.trim() : "";
   const email = typeof form.email === "string" ? form.email.trim() : "";
+  const eventStartDate = typeof form.event_start_date === "string" ? form.event_start_date : "";
+  const eventEndDate = typeof form.event_end_date === "string" ? form.event_end_date : "";
+  const customerComments =
+    typeof form.customer_comments === "string" ? form.customer_comments.trim() : "";
   const selectedPackage =
     typeof form.package === "string" ? packageDetails[form.package] : undefined;
 
@@ -58,9 +68,15 @@ module.exports = async (request, response) => {
     customerName.length > 120 ||
     !/^[0-9\s+()-]{7,20}$/.test(mobileNumber) ||
     email.length > 254 ||
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
+    !isValidDate(eventStartDate) ||
+    !isValidDate(eventEndDate) ||
+    eventEndDate < eventStartDate ||
+    customerComments.length > 2000
   ) {
-    respond(response, 400, { error: "Check your details and select a valid package." });
+    respond(response, 400, {
+      error: "Check your contact details, event dates, and selected package.",
+    });
     return;
   }
 
@@ -78,9 +94,11 @@ module.exports = async (request, response) => {
     "",
     `Package: ${selectedPackage.name}`,
     `Category: ${selectedPackage.category}`,
+    `Event period: ${eventStartDate} to ${eventEndDate}`,
     `Name: ${customerName}`,
     `Mobile number: ${mobileNumber}`,
     `Email: ${email}`,
+    `Customer comments: ${customerComments || "None"}`,
   ].join("\n");
 
   let emailResponse;

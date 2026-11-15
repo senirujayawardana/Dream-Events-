@@ -157,6 +157,19 @@ if (reservationForm) {
   const categoryField = document.querySelector("#reservation-category");
   const submitButton = reservationForm.querySelector('button[type="submit"]');
   const status = document.querySelector("#reservation-status");
+  const eventStartDate = reservationForm.querySelector('[name="event_start_date"]');
+  const eventEndDate = reservationForm.querySelector('[name="event_end_date"]');
+
+  const updateEventDateRange = () => {
+    eventEndDate.min = eventStartDate.value;
+    eventEndDate.setCustomValidity(
+      eventEndDate.value && eventEndDate.value < eventStartDate.value
+        ? "End date must be on or after the start date."
+        : "",
+    );
+  };
+  eventStartDate.addEventListener("input", updateEventDateRange);
+  eventEndDate.addEventListener("input", updateEventDateRange);
 
   if (selectedPackage) {
     packageName.textContent = selectedPackage.name;
