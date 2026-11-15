@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Send Dream Events your reservation request and details for your selected event package."
+    />
+    <meta name="theme-color" content="#ffffff" />
+    <title>Reserve a Package — Dream Events</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body class="reservation-page">
+    <header class="site-header">
+      <a class="brand" href="index.html#home" aria-label="Dream Events home">
+        <img class="brand-logo" src="assets/dream-events-logo.png" alt="Dream Events" />
+      </a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">
+        <span></span><span></span>
+        <span class="sr-only">Toggle navigation</span>
+      </button>
+      <nav class="primary-nav" id="primary-nav" aria-label="Main navigation">
+        <a href="story.html">Our story</a>
+        <a href="investor-relations.html">Investor relations</a>
+        <a href="index.html#services">What we do</a>
+        <a href="packages.html" aria-current="page">Packages</a>
+        <a href="index.html#past-events">Our work</a>
+        <a class="nav-cta" href="index.html#contact">Let’s talk <span aria-hidden="true">↗</span></a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="reservation-hero">
+        <p class="eyebrow"><span class="eyebrow-line"></span> A beautiful event starts here</p>
+        <h1>Let’s make it <em>happen.</em></h1>
+        <p>Share your details and our team will get in touch to discuss your reservation.</p>
+      </section>
+
+      <section class="reservation-section">
+        <div class="reservation-layout">
+          <aside class="reservation-summary" aria-labelledby="selected-package-heading">
+            <p class="package-overline">YOUR SELECTED PACKAGE</p>
+            <h2 id="selected-package-heading">Package details</h2>
+            <p class="reservation-package-category" id="selected-package-category"></p>
+            <p class="reservation-package-name" id="selected-package-name">Choose a package to continue.</p>
+            <a class="reservation-back-link" href="packages.html">← Back to packages</a>
+          </aside>
+
+          <div class="reservation-form-panel">
+            <h2>Your contact details</h2>
+            <p class="reservation-form-intro">We’ll use these details to follow up about your selected package.</p>
+            <form
+              id="reservation-form"
+              name="package-reservation"
+              method="POST"
+              action="reservation-success.html"
+              data-netlify="true"
+              netlify-honeypot="bot-field"
+            >
+              <input type="hidden" name="form-name" value="package-reservation" />
+              <input type="hidden" name="subject" value="New Dream Events package reservation" />
+              <input type="hidden" name="package" id="reservation-package" />
+              <input type="hidden" name="category" id="reservation-category" />
+              <p class="reservation-honeypot" hidden>
+                <label>Leave this field empty: <input name="bot-field" /></label>
+              </p>
+
+              <label class="reservation-field">
+                <span>Full name</span>
+                <input type="text" name="customer_name" autocomplete="name" required />
+              </label>
+              <label class="reservation-field">
+                <span>Mobile number</span>
+                <input
+                  type="tel"
+                  name="mobile_number"
+                  autocomplete="tel"
+                  inputmode="tel"
+                  pattern="[0-9\s\+\(\)\-]{7,20}"
+                  title="Enter a valid phone number."
+                  required
+                />
+              </label>
+              <label class="reservation-field">
+                <span>Email address</span>
+                <input type="email" name="email" autocomplete="email" required />
+              </label>
+
+              <p class="reservation-privacy">
+                Submitting this form sends your details through Netlify to Dream Events so we can follow up.
+              </p>
+              <p class="reservation-status" id="reservation-status" role="status" aria-live="polite" hidden></p>
+              <button class="button button-dark reservation-submit" type="submit" disabled>
+                Send reservation request <span aria-hidden="true">↗</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <a class="brand" href="index.html#home" aria-label="Dream Events home">
+        <img class="brand-logo" src="assets/dream-events-logo.png" alt="Dream Events" />
+      </a>
+      <p>Good people. Great moments. That’s the dream.</p>
+      <div class="footer-links">
+        <a href="packages.html">Packages</a>
+        <a href="https://www.instagram.com/dream_events.lk?psln=dHlvNXVmNWoxNWkz" target="_blank" rel="noopener noreferrer">Instagram ↗</a>
+        <a href="https://www.facebook.com/share/1K8vCjDfs1/" target="_blank" rel="noopener noreferrer">Facebook ↗</a>
+      </div>
+      <span class="copyright">© <span id="year"></span> Dream Events · Sri Lanka</span>
+    </footer>
+  </body>
+</html>
