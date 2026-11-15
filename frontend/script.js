@@ -156,11 +156,12 @@ if (reservationForm) {
   const packageField = document.querySelector("#reservation-package");
   const categoryField = document.querySelector("#reservation-category");
   const submitButton = reservationForm.querySelector('button[type="submit"]');
+  const status = document.querySelector("#reservation-status");
 
   if (selectedPackage) {
     packageName.textContent = selectedPackage.name;
     packageCategory.textContent = selectedPackage.category;
-    packageField.value = selectedPackage.name;
+    packageField.value = packageKey;
     categoryField.value = selectedPackage.category;
     submitButton.disabled = false;
   } else {
@@ -168,16 +169,46 @@ if (reservationForm) {
     submitButton.disabled = true;
   }
 
-  const isLocalPreview =
-    window.location.protocol === "file:" ||
-    ["localhost", "127.0.0.1", "::1", "[::1]"].includes(window.location.hostname);
-  if (isLocalPreview) {
-    reservationForm.addEventListener("submit", (event) => {
-      event.preventDefault();
-      const status = document.querySelector("#reservation-status");
-      status.textContent =
-        "This local preview cannot send reservation emails. Deploy the site to Netlify and enable a form notification to dreammakerofc@gmail.com.";
-      status.hidden = false;
-    });
-  }
+  reservationForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    submitButton.disabled = true;
+    status.textContent = "Sending your reservation request…";
+    status.hidden = false;
+
+    fetch(reservationForm.action, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(Object.fromEntries(new FormData(reservationForm))),
+    })
+      .then(async (response) => {
+        let result;
+        try {
+          result = await response.json();
+        } catch {
+          result = null;
+        }
+
+        if (!response.ok) {
+          throw new Error(
+            result && typeof result.error === "string"
+              ? result.error
+              : `Unable to send your request (HTTP ${response.status}). Please try again.`,
+          );
+        }
+        if (!result || result.status !== "sent") {
+          throw new Error("The reservation service returned an unexpected response. Please try again.");
+        }
+        window.location.assign("reservation-success.html");
+      })
+      .catch((error) => {
+        status.textContent =
+          error instanceof Error
+            ? error.message
+            : "Unable to send your request. Please try again.";
+        submitButton.disabled = false;
+      });
+  });
 }

@@ -61,17 +61,10 @@
               id="reservation-form"
               name="package-reservation"
               method="POST"
-              action="reservation-success.html"
-              data-netlify="true"
-              netlify-honeypot="bot-field"
+              action="/api/reservation"
             >
-              <input type="hidden" name="form-name" value="package-reservation" />
-              <input type="hidden" name="subject" value="New Dream Events package reservation" />
               <input type="hidden" name="package" id="reservation-package" />
               <input type="hidden" name="category" id="reservation-category" />
-              <p class="reservation-honeypot" hidden>
-                <label>Leave this field empty: <input name="bot-field" /></label>
-              </p>
 
               <label class="reservation-field">
                 <span>Full name</span>
@@ -95,7 +88,7 @@
               </label>
 
               <p class="reservation-privacy">
-                Submitting this form sends your details through Netlify to Dream Events so we can follow up.
+                Your details will be sent securely to Dream Events so our team can follow up.
               </p>
               <p class="reservation-status" id="reservation-status" role="status" aria-live="polite" hidden></p>
               <button class="button button-dark reservation-submit" type="submit" disabled>

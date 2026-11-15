@@ -2,6 +2,7 @@ const fs = require("node:fs");
 const http = require("node:http");
 const path = require("node:path");
 
+const reservationHandler = require("../api/reservation");
 const frontendRoot = path.resolve(__dirname, "..", "frontend");
 const port = Number(process.env.PORT || 3000);
 
@@ -28,17 +29,50 @@ const sendText = (response, statusCode, message) => {
 };
 
 const server = http.createServer((request, response) => {
-  if (request.method !== "GET" && request.method !== "HEAD") {
-    response.writeHead(405, { Allow: "GET, HEAD", "Content-Type": "text/plain; charset=utf-8" });
-    response.end("Method not allowed.");
-    return;
-  }
-
   let pathname;
   try {
     pathname = decodeURIComponent(new URL(request.url || "/", "http://localhost").pathname);
   } catch {
     sendText(response, 400, "Invalid request path.");
+    return;
+  }
+
+  if (pathname === "/api/reservation") {
+    if (request.method !== "POST") {
+      response.writeHead(405, { Allow: "POST", "Content-Type": "text/plain; charset=utf-8" });
+      response.end("Method not allowed.");
+      return;
+    }
+
+    let body = "";
+    let bodyTooLarge = false;
+    request.on("data", (chunk) => {
+      if (bodyTooLarge) return;
+      body += chunk;
+      if (Buffer.byteLength(body) > 10_000) {
+        bodyTooLarge = true;
+        sendText(response, 413, "Request is too large.");
+        request.resume();
+      }
+    });
+    request.on("end", () => {
+      if (bodyTooLarge) return;
+      request.body = body;
+      reservationHandler(request, response).catch((error) => {
+        console.error("Unable to process reservation request:", error);
+        if (response.headersSent) {
+          response.destroy(error);
+        } else {
+          sendText(response, 500, "Unable to process reservation request.");
+        }
+      });
+    });
+    return;
+  }
+
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    response.writeHead(405, { Allow: "GET, HEAD", "Content-Type": "text/plain; charset=utf-8" });
+    response.end("Method not allowed.");
     return;
   }
 
