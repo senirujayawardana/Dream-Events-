@@ -134,6 +134,99 @@ if ("IntersectionObserver" in window) {
   countElements.forEach(animateCount);
 }
 
+let turnstileConfigPromise;
+let turnstileScriptPromise;
+
+const loadTurnstile = async () => {
+  if (window.turnstile) return;
+  if (!turnstileScriptPromise) {
+    turnstileScriptPromise = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      script.async = true;
+      script.defer = true;
+      script.onload = resolve;
+      script.onerror = () => reject(new Error("Spam protection could not be loaded."));
+      document.head.append(script);
+    });
+  }
+  await turnstileScriptPromise;
+};
+
+const loadTurnstileConfig = async () => {
+  if (!turnstileConfigPromise) {
+    turnstileConfigPromise = fetch("/api/security-config")
+      .then(async (response) => {
+        let config;
+        try {
+          config = await response.json();
+        } catch {
+          throw new Error("Spam protection configuration could not be loaded.");
+        }
+        if (!response.ok) throw new Error(config.error || "Spam protection configuration could not be loaded.");
+        if (!config.turnstileEnabled || typeof config.siteKey !== "string") {
+          throw new Error("Online forms are temporarily unavailable. Please contact Dream Events by email.");
+        }
+        return config;
+      });
+  }
+  return turnstileConfigPromise;
+};
+
+const setupTurnstile = (form, canSubmit = () => true) => {
+  const widget = form.querySelector("[data-turnstile]");
+  const tokenField = form.querySelector('[name="turnstile_token"]');
+  const status = form.querySelector(".turnstile-status");
+  const submitButton = form.querySelector('button[type="submit"]');
+  let widgetId = null;
+  const updateSubmitButton = () => {
+    submitButton.disabled = !tokenField.value || !form.checkValidity() || !canSubmit();
+  };
+  const setStatus = (message, isError = false) => {
+    status.textContent = message;
+    status.classList.toggle("is-error", isError);
+  };
+  const reset = () => {
+    tokenField.value = "";
+    updateSubmitButton();
+    if (widgetId !== null && window.turnstile) window.turnstile.reset(widgetId);
+    setStatus("Please complete the spam-protection check.");
+  };
+
+  submitButton.disabled = true;
+  form.addEventListener("input", updateSubmitButton);
+  form.addEventListener("change", updateSubmitButton);
+
+  loadTurnstileConfig()
+    .then(async ({ siteKey }) => {
+      await loadTurnstile();
+      widgetId = window.turnstile.render(widget, {
+        sitekey: siteKey,
+        action: widget.dataset.action,
+        callback: (token) => {
+          tokenField.value = token;
+          setStatus("");
+          updateSubmitButton();
+        },
+        "expired-callback": () => {
+          tokenField.value = "";
+          setStatus("The check expired. Please complete it again.");
+          updateSubmitButton();
+        },
+        "error-callback": () => {
+          tokenField.value = "";
+          setStatus("Spam protection is unavailable. Please refresh the page and try again.", true);
+          updateSubmitButton();
+        },
+      });
+    })
+    .catch((error) => {
+      setStatus(error instanceof Error ? error.message : "Spam protection is unavailable.", true);
+    });
+
+  return { reset, updateSubmitButton };
+};
+
 const reservationForm = document.querySelector("#reservation-form");
 if (reservationForm) {
   const packageDetails = {
@@ -159,6 +252,7 @@ if (reservationForm) {
   const status = document.querySelector("#reservation-status");
   const eventStartDate = reservationForm.querySelector('[name="event_start_date"]');
   const eventEndDate = reservationForm.querySelector('[name="event_end_date"]');
+  const turnstile = setupTurnstile(reservationForm, () => Boolean(selectedPackage));
   const today = new Date().toISOString().slice(0, 10);
   eventStartDate.min = today;
   eventEndDate.min = today;
@@ -179,10 +273,8 @@ if (reservationForm) {
     packageCategory.textContent = selectedPackage.category;
     packageField.value = packageKey;
     categoryField.value = selectedPackage.category;
-    submitButton.disabled = false;
   } else {
     packageName.textContent = "Choose a package from our packages page to continue.";
-    submitButton.disabled = true;
   }
 
   reservationForm.addEventListener("submit", (event) => {
@@ -228,7 +320,7 @@ if (reservationForm) {
           error instanceof Error
             ? error.message
             : "Unable to send your request. Please try again.";
-        submitButton.disabled = false;
+        turnstile.reset();
       });
   });
 }
@@ -243,6 +335,7 @@ if (notificationWarning && new URLSearchParams(window.location.search).get("noti
 document.querySelectorAll("#event-inquiry-form, #sponsor-inquiry-form").forEach((form) => {
   const status = form.querySelector(".inquiry-status");
   const submitButton = form.querySelector('button[type="submit"]');
+  const turnstile = setupTurnstile(form);
   const preferredDate = form.querySelector('[name="preferred_date"]');
   if (preferredDate) preferredDate.min = new Date().toISOString().slice(0, 10);
 
@@ -276,12 +369,14 @@ document.querySelectorAll("#event-inquiry-form, #sponsor-inquiry-form").forEach(
       }
       status.textContent = result.message;
       form.reset();
+      turnstile.reset();
     } catch (error) {
       status.textContent =
         error instanceof Error ? error.message : "Unable to send your inquiry. Please try again.";
       status.classList.add("is-error");
+      turnstile.reset();
     } finally {
-      submitButton.disabled = false;
+      turnstile.updateSubmitButton();
     }
   });
 });

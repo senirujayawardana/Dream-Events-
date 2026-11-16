@@ -1,4 +1,12 @@
-const { insertInquiry, isValidDate, isValidEmail, readBody, respond, sendEmail } = require("./_lib");
+const {
+  insertInquiry,
+  isValidDate,
+  isValidEmail,
+  readBody,
+  respond,
+  sendEmail,
+  verifyTurnstile,
+} = require("./_lib");
 
 const cleanText = (value, maximum) =>
   typeof value === "string" ? value.trim().slice(0, maximum) : "";
@@ -36,6 +44,18 @@ module.exports = async (request, response) => {
     (kind === "sponsor" && (!organization || !message))
   ) {
     respond(response, 400, { error: "Check the required fields and try again." });
+    return;
+  }
+
+  try {
+    if (!(await verifyTurnstile(form.turnstile_token, "inquiry", request.headers.host))) {
+      respond(response, 403, { error: "Complete the anti-spam check and try again." });
+      return;
+    }
+  } catch (error) {
+    respond(response, 503, {
+      error: error instanceof Error ? error.message : "Bot protection is unavailable.",
+    });
     return;
   }
 

@@ -494,8 +494,12 @@
               <textarea name="message" rows="4" maxlength="2000" required></textarea>
             </label>
             <input type="hidden" name="kind" value="event" />
+            <div class="turnstile-widget" data-turnstile data-action="inquiry"></div>
+            <input type="hidden" name="turnstile_token" />
+            <p class="turnstile-status" role="status" aria-live="polite">Loading spam protection…</p>
             <p class="inquiry-status" role="status" aria-live="polite" hidden></p>
-            <button class="button button-dark reservation-submit" type="submit">Send event inquiry <span aria-hidden="true">↗</span></button>
+            <button class="button button-dark reservation-submit" type="submit" disabled>Send event inquiry <span aria-hidden="true">↗</span></button>
+            <p class="turnstile-disclosure">Spam protection by Cloudflare Turnstile.</p>
           </form>
         </div>
         <h3 class="founder-contacts-heading reveal">Contact our founders</h3>

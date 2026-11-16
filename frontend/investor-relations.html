@@ -179,8 +179,12 @@
               <textarea name="message" rows="4" maxlength="2000" required></textarea>
             </label>
             <input type="hidden" name="kind" value="sponsor" />
+            <div class="turnstile-widget" data-turnstile data-action="inquiry"></div>
+            <input type="hidden" name="turnstile_token" />
+            <p class="turnstile-status" role="status" aria-live="polite">Loading spam protection…</p>
             <p class="inquiry-status" role="status" aria-live="polite" hidden></p>
-            <button class="button button-dark reservation-submit" type="submit">Send partnership inquiry <span aria-hidden="true">↗</span></button>
+            <button class="button button-dark reservation-submit" type="submit" disabled>Send partnership inquiry <span aria-hidden="true">↗</span></button>
+            <p class="turnstile-disclosure">Spam protection by Cloudflare Turnstile.</p>
           </form>
         </div>
         <a

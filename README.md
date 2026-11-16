@@ -42,8 +42,12 @@ Add these variables to the Vercel project (and redeploy after changing them). `.
 | `RESEND_API_KEY` | Resend API key |
 | `RESEND_FROM_EMAIL` | Verified sender, for example `Dream Events <notifications@your-verified-domain>` |
 | `RESERVATION_EMAIL_TO` | Optional notification destination; defaults to `dreammakerofc@gmail.com` |
+| `TURNSTILE_SITE_KEY` | Cloudflare Turnstile site key for the public form widgets |
+| `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile secret key; server-side only |
 
 `PUBLIC_SITE_URL` powers the admin magic-link redirect. Add the deployed URL to Supabase's allowed redirect URLs as well. If the admin account does not have a password yet, use Supabase Authentication to set one; the admin page also keeps email-link sign-in available. If you attach a custom domain, also update the canonical/social URLs in the public page heads and the domain in `frontend/robots.txt` and `frontend/sitemap.xml`.
+
+Create a Cloudflare Turnstile widget for the domains serving the site, then add its site and secret keys to Vercel and redeploy. The public inquiry and reservation APIs reject submissions without a valid Turnstile token. Until both keys are configured, online forms remain unavailable and show an email contact fallback. Never put the secret key in frontend code.
 
 ## Site manager
 
@@ -65,6 +69,15 @@ New content remains unpublished until explicitly approved in the manager. Add ev
 - `/api/health` is the deployment health check.
 
 The public event calendar and partner/testimonial sections are empty until content is published. The existing past-event gallery can be filtered by category without adding any unverified material.
+
+## Security operations
+
+- Vercel serves security headers including content-type, framing, referrer, and browser-permissions protections. HSTS is also provided by the HTTPS deployment.
+- Turnstile verification is required by public inquiry and reservation API handlers. Configure the widget and keys above before relying on those forms.
+- In the Vercel Firewall dashboard, add rate limits for `/api/inquiry`, `/api/reservation`, and `/api/admin-auth`; use the lowest limits that still allow legitimate customer traffic.
+- Enable MFA for the Supabase admin and for GitHub, Vercel, and Resend accounts. Use unique passwords stored in a password manager.
+- Confirm Supabase database backups are enabled for your plan and periodically test a restore. Set up uptime and certificate-expiry alerts with your preferred monitoring provider.
+- Publish a privacy notice explaining inquiry data storage and Cloudflare Turnstile processing. Review who can access Vercel environment variables and rotate any key that may have been exposed.
 
 ## Search and sharing
 

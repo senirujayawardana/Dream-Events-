@@ -520,6 +520,11 @@ button.calendar-day:hover, button.calendar-day.is-selected { background: #e9f4f6
 .admin-login-link-button { margin-top: 14px; }
 .admin-login-link-button:disabled { opacity: .55; cursor: wait; }
 .admin-feedback { margin: 12px 0; color: var(--muted); font-size: 14px; line-height: 1.65; }
+.turnstile-widget { min-height: 65px; }
+.turnstile-status, .turnstile-disclosure, .turnstile-fallback { margin: 8px 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.turnstile-status.is-error { color: #a33b32; }
+.turnstile-disclosure { font-size: 12px; }
+.turnstile-fallback a { color: var(--ink); }
 .admin-title-row { display: flex; align-items: center; justify-content: space-between; gap: 25px; margin-bottom: 36px; }
 .admin-title-row > div > p:last-child { max-width: 640px; margin-bottom: 0; }
 .button-outline { border: 1px solid var(--line); background: white; color: var(--ink); cursor: pointer; }

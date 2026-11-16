@@ -5,6 +5,7 @@ const {
   readBody,
   respond,
   sendEmail,
+  verifyTurnstile,
 } = require("./_lib");
 
 const packageDetails = {
@@ -54,6 +55,18 @@ module.exports = async (request, response) => {
   ) {
     respond(response, 400, {
       error: "Check your contact details, event dates, and selected package.",
+    });
+    return;
+  }
+
+  try {
+    if (!(await verifyTurnstile(form.turnstile_token, "reservation", request.headers.host))) {
+      respond(response, 403, { error: "Complete the anti-spam check and try again." });
+      return;
+    }
+  } catch (error) {
+    respond(response, 503, {
+      error: error instanceof Error ? error.message : "Bot protection is unavailable.",
     });
     return;
   }

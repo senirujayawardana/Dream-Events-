@@ -9,6 +9,7 @@ const apiHandlers = {
   "/api/content": require("../api/content"),
   "/api/inquiry": require("../api/inquiry"),
   "/api/reservation": reservationHandler,
+  "/api/security-config": require("../api/security-config"),
 };
 const frontendRoot = path.resolve(__dirname, "..", "frontend");
 const port = Number(process.env.PORT || 3000);

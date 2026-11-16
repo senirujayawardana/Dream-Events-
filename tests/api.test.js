@@ -5,6 +5,7 @@ const reservationHandler = require("../api/reservation");
 const inquiryHandler = require("../api/inquiry");
 const adminHandler = require("../api/admin");
 const adminAuthHandler = require("../api/admin-auth");
+const securityConfigHandler = require("../api/security-config");
 
 const withEnvironment = async (values, callback) => {
   const previous = {};
@@ -32,7 +33,12 @@ const invoke = async (
   const request = {
     method,
     url,
-    headers: { accept, "content-type": "application/json", authorization: "Bearer invalid-token" },
+    headers: {
+      accept,
+      "content-type": "application/json",
+      authorization: "Bearer invalid-token",
+      host: "dream-events.example",
+    },
     body,
   };
   const headers = {};
@@ -57,6 +63,7 @@ const configuredEnvironment = {
   SUPABASE_SERVICE_ROLE_KEY: "test-service-key",
   RESEND_API_KEY: "test-resend-key",
   RESEND_FROM_EMAIL: "Dream Events <notifications@example.com>",
+  TURNSTILE_SECRET_KEY: "test-turnstile-secret",
 };
 
 const configuredAdminEnvironment = {
@@ -64,6 +71,111 @@ const configuredAdminEnvironment = {
   SUPABASE_ANON_KEY: "test-anon-key",
   ADMIN_EMAIL: "admin@example.com",
 };
+
+const turnstileSuccess = (action) => ({
+  ok: true,
+  status: 200,
+  json: async () => ({ success: true, action, hostname: "dream-events.example" }),
+});
+
+test("public security configuration exposes only the site key when both keys are present", async () => {
+  await withEnvironment({
+    TURNSTILE_SITE_KEY: "public-site-key",
+    TURNSTILE_SECRET_KEY: "private-secret-key",
+  }, async () => {
+    const result = await invoke(securityConfigHandler, null, "application/json", "GET");
+
+    assert.equal(result.statusCode, 200);
+    assert.deepEqual(result.body, { turnstileEnabled: true, siteKey: "public-site-key" });
+    assert.equal(result.headers["cache-control"], "no-store");
+  });
+});
+
+test("public security configuration does not enable Turnstile with incomplete settings", async () => {
+  await withEnvironment({
+    TURNSTILE_SITE_KEY: "public-site-key",
+    TURNSTILE_SECRET_KEY: "",
+  }, async () => {
+    const result = await invoke(securityConfigHandler, null, "application/json", "GET");
+
+    assert.equal(result.body.turnstileEnabled, false);
+    assert.equal("siteKey" in result.body, false);
+  });
+});
+
+test("public inquiry rejects missing Turnstile configuration before saving", async (t) => {
+  await withEnvironment({
+    SUPABASE_URL: "https://supabase.example",
+    SUPABASE_SERVICE_ROLE_KEY: "test-service-key",
+    RESEND_API_KEY: "test-resend-key",
+    RESEND_FROM_EMAIL: "Dream Events <notifications@example.com>",
+    TURNSTILE_SITE_KEY: "",
+    TURNSTILE_SECRET_KEY: "",
+  }, async () => {
+    const originalFetch = global.fetch;
+    t.after(() => { global.fetch = originalFetch; });
+    global.fetch = async () => { throw new Error("Unexpected request"); };
+
+    const result = await invoke(inquiryHandler, {
+      kind: "event",
+      name: "Test Contact",
+      email: "contact@example.com",
+      event_type: "Concert",
+      message: "We are planning an event.",
+      turnstile_token: "test-token",
+    });
+
+    assert.equal(result.statusCode, 503);
+    assert.match(result.body.error, /bot protection is not configured/i);
+  });
+});
+
+test("public inquiry rejects a Turnstile token verified for a different action", async (t) => {
+  await withEnvironment(configuredEnvironment, async () => {
+    const originalFetch = global.fetch;
+    t.after(() => { global.fetch = originalFetch; });
+    const calls = [];
+    global.fetch = async (url) => {
+      calls.push(url);
+      return turnstileSuccess("reservation");
+    };
+
+    const result = await invoke(inquiryHandler, {
+      kind: "event",
+      name: "Test Contact",
+      email: "contact@example.com",
+      event_type: "Concert",
+      message: "We are planning an event.",
+      turnstile_token: "test-turnstile-token",
+    });
+    assert.equal(result.statusCode, 403);
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0], "https://challenges.cloudflare.com/turnstile/v0/siteverify");
+  });
+});
+
+test("public inquiry rejects a Turnstile token verified for a different hostname", async (t) => {
+  await withEnvironment(configuredEnvironment, async () => {
+    const originalFetch = global.fetch;
+    t.after(() => { global.fetch = originalFetch; });
+    global.fetch = async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ success: true, action: "inquiry", hostname: "attacker.example" }),
+    });
+
+    const result = await invoke(inquiryHandler, {
+      kind: "event",
+      name: "Test Contact",
+      email: "contact@example.com",
+      event_type: "Concert",
+      message: "We are planning an event.",
+      turnstile_token: "test-turnstile-token",
+    });
+
+    assert.equal(result.statusCode, 403);
+  });
+});
 
 test("the authorized admin can sign in with a password without exposing refresh credentials", async (t) => {
   await withEnvironment(configuredAdminEnvironment, async () => {
@@ -159,6 +271,13 @@ test("reservation requests are saved before team and customer emails are sent", 
     const originalFetch = global.fetch;
     t.after(() => { global.fetch = originalFetch; });
     global.fetch = async (url, options) => {
+      if (url === "https://challenges.cloudflare.com/turnstile/v0/siteverify") {
+        assert.deepEqual(JSON.parse(options.body), {
+          secret: "test-turnstile-secret",
+          response: "test-turnstile-token",
+        });
+        return turnstileSuccess("reservation");
+      }
       calls.push({ url, options });
       return { ok: true, status: 201, text: async () => "" };
     };
@@ -171,6 +290,7 @@ test("reservation requests are saved before team and customer emails are sent", 
       event_start_date: "2027-03-10",
       event_end_date: "2027-03-11",
       customer_comments: "Test request",
+      turnstile_token: "test-turnstile-token",
     });
 
     assert.equal(result.statusCode, 200);
@@ -204,9 +324,11 @@ test("non-JavaScript reservation submits retain the email delivery warning", asy
       console.error = originalConsoleError;
     });
     console.error = () => {};
-    global.fetch = async (url) => url === "https://api.resend.com/emails"
-      ? { ok: false, status: 503, text: async () => "" }
-      : { ok: true, status: 201, text: async () => "" };
+    global.fetch = async (url) => {
+      if (url === "https://challenges.cloudflare.com/turnstile/v0/siteverify") return turnstileSuccess("reservation");
+      if (url === "https://api.resend.com/emails") return { ok: false, status: 503, text: async () => "" };
+      return { ok: true, status: 201, text: async () => "" };
+    };
 
     const result = await invoke(reservationHandler, {
       package: "executive",
@@ -216,6 +338,7 @@ test("non-JavaScript reservation submits retain the email delivery warning", asy
       event_start_date: "2027-03-10",
       event_end_date: "2027-03-11",
       customer_comments: "",
+      turnstile_token: "test-turnstile-token",
     }, "text/html");
 
     assert.equal(result.statusCode, 303);
@@ -234,6 +357,9 @@ test("an inquiry remains recorded when email delivery fails", async (t) => {
     });
     console.error = () => {};
     global.fetch = async (url, options) => {
+      if (url === "https://challenges.cloudflare.com/turnstile/v0/siteverify") {
+        return turnstileSuccess("inquiry");
+      }
       calls.push({ url, options });
       if (url === "https://api.resend.com/emails") {
         return { ok: false, status: 503, text: async () => "" };
@@ -248,6 +374,7 @@ test("an inquiry remains recorded when email delivery fails", async (t) => {
       phone: "",
       organization: "Example Organization",
       message: "We would like to discuss a partnership.",
+      turnstile_token: "test-turnstile-token",
     });
 
     assert.equal(result.statusCode, 202);

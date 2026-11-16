@@ -87,6 +87,43 @@ const sendEmail = async ({ to, subject, text, replyTo }) => {
   }
 };
 
+const verifyTurnstile = async (token, expectedAction, requestHost) => {
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+  if (!secret) throw new Error("Bot protection is not configured.");
+  if (typeof token !== "string" || token.length === 0 || token.length > 2048) return false;
+  if (typeof requestHost !== "string" || !requestHost.trim()) return false;
+  let expectedHostname;
+  try {
+    expectedHostname = new URL(`http://${requestHost}`).hostname.toLowerCase();
+  } catch {
+    return false;
+  }
+  if (!expectedHostname) return false;
+
+  let response;
+  try {
+    response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ secret, response: token }),
+    });
+  } catch {
+    throw new Error("The bot protection service is temporarily unavailable.");
+  }
+  if (!response.ok) throw new Error("The bot protection service is temporarily unavailable.");
+
+  let result;
+  try {
+    result = await response.json();
+  } catch {
+    throw new Error("The bot protection service returned an invalid response.");
+  }
+  return result.success === true &&
+    result.action === expectedAction &&
+    typeof result.hostname === "string" &&
+    result.hostname.toLowerCase() === expectedHostname;
+};
+
 const isValidDate = (value) => {
   if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const date = new Date(`${value}T00:00:00.000Z`);
@@ -140,4 +177,5 @@ module.exports = {
   safeHttpUrl,
   sendEmail,
   supabaseRequest,
+  verifyTurnstile,
 };

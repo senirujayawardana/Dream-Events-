@@ -117,10 +117,15 @@
               <p class="reservation-privacy">
                 Your details will be sent securely to Dream Events so our team can follow up.
               </p>
+              <div class="turnstile-widget" data-turnstile data-action="reservation"></div>
+              <input type="hidden" name="turnstile_token" />
+              <p class="turnstile-status" role="status" aria-live="polite">Loading spam protection…</p>
               <p class="reservation-status" id="reservation-status" role="status" aria-live="polite" hidden></p>
               <button class="button button-dark reservation-submit" type="submit" disabled>
                 Send reservation request <span aria-hidden="true">↗</span>
               </button>
+              <p class="turnstile-disclosure">Spam protection by Cloudflare Turnstile.</p>
+              <p class="turnstile-fallback">Having trouble? Email <a href="mailto:dreammakerofc@gmail.com">dreammakerofc@gmail.com</a>.</p>
             </form>
           </div>
         </div>
