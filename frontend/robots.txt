@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin.html
 Disallow: /api/
 
-Sitemap: https://dream-events-eta.vercel.app/sitemap.xml
+Sitemap: https://www.dreamevents.com.lk/sitemap.xml

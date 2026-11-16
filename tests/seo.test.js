@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const root = path.resolve(__dirname, "..");
-const siteOrigin = "https://dream-events-eta.vercel.app";
+const siteOrigin = "https://www.dreamevents.com.lk";
 const readFrontend = (file) => fs.readFileSync(path.join(root, "frontend", file), "utf8");
 
 test("public pages declare unique titles, descriptions, canonicals, and large social images", () => {
@@ -25,7 +25,7 @@ test("public pages declare unique titles, descriptions, canonicals, and large so
     titles.add(title);
     assert.match(html, /<meta\s+name="description"\s+content="[^"]{70,170}"/);
     assert.ok(html.includes(`<link rel="canonical" href="${canonical}" />`), `${file} should use its canonical URL`);
-    assert.match(html, /<meta property="og:image" content="https:\/\/dream-events-eta\.vercel\.app\/assets\/[^"]+"/);
+    assert.match(html, /<meta property="og:image" content="https:\/\/www\.dreamevents\.com\.lk\/assets\/[^"]+"/);
     assert.match(html, /<meta name="twitter:card" content="summary_large_image"/);
   });
 });

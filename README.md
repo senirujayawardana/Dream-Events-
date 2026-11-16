@@ -38,14 +38,14 @@ Add these variables to the Vercel project (and redeploy after changing them). `.
 | `SUPABASE_ANON_KEY` | Supabase anon/public key; used only for validating admin sessions and authentication |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service-role key; server-side only |
 | `ADMIN_EMAIL` | `jayawardana.seniru@gmail.com` |
-| `PUBLIC_SITE_URL` | `https://dream-events-eta.vercel.app` (update if you attach a custom domain) |
+| `PUBLIC_SITE_URL` | `https://www.dreamevents.com.lk` |
 | `RESEND_API_KEY` | Resend API key |
 | `RESEND_FROM_EMAIL` | Verified sender, for example `Dream Events <notifications@your-verified-domain>` |
 | `RESERVATION_EMAIL_TO` | Optional notification destination; defaults to `dreammakerofc@gmail.com` |
 | `TURNSTILE_SITE_KEY` | Cloudflare Turnstile site key for the public form widgets |
 | `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile secret key; server-side only |
 
-`PUBLIC_SITE_URL` powers the admin magic-link redirect. Add the deployed URL to Supabase's allowed redirect URLs as well. If the admin account does not have a password yet, use Supabase Authentication to set one; the admin page also keeps email-link sign-in available. If you attach a custom domain, also update the canonical/social URLs in the public page heads and the domain in `frontend/robots.txt` and `frontend/sitemap.xml`.
+`PUBLIC_SITE_URL` powers the admin magic-link redirect. Add the deployed URL to Supabase's allowed redirect URLs as well. If the admin account does not have a password yet, use Supabase Authentication to set one; the admin page also keeps email-link sign-in available. The public page canonicals, social URLs, robots file, and sitemap use `https://www.dreamevents.com.lk`; update those if the production domain changes.
 
 Create a Cloudflare Turnstile widget for the domains serving the site, then add its site and secret keys to Vercel and redeploy. The public inquiry and reservation APIs reject submissions without a valid Turnstile token. Until both keys are configured, online forms remain unavailable and show an email contact fallback. Never put the secret key in frontend code.
 

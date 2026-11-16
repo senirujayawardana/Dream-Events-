@@ -32,6 +32,98 @@ const activeSectionLinks = [...document.querySelectorAll(
 )]
   .map((link) => ({ link, section: document.getElementById(link.hash.slice(1)) }))
   .filter(({ section }) => section);
+const interactiveButterflies = [...document.querySelectorAll(".butterfly-flight, .packages-butterfly")];
+let butterflyPointer = null;
+let butterflyResponsePending = false;
+let butterflyTouchResetTimer;
+let butterflyWindResetTimer;
+let butterflyWindX = 0;
+let butterflyWindY = 0;
+let previousScrollY = window.scrollY;
+const updateButterflyResponses = () => {
+  if (!interactiveButterflies.length || butterflyResponsePending) return;
+  butterflyResponsePending = true;
+  requestAnimationFrame(() => {
+    interactiveButterflies.forEach((butterfly, index) => {
+      const bounds = butterfly.getBoundingClientRect();
+      let offsetX = butterflyWindX * (index % 2 ? -1 : 1);
+      let offsetY = butterflyWindY * (index % 3 === 0 ? 1 : 0.72);
+      if (butterflyPointer) {
+        const distanceX = bounds.left + bounds.width / 2 - butterflyPointer.x;
+        const distanceY = bounds.top + bounds.height / 2 - butterflyPointer.y;
+        const distance = Math.hypot(distanceX, distanceY);
+        if (distance < butterflyPointer.radius) {
+          const force = butterflyPointer.strength * (1 - distance / butterflyPointer.radius) ** 2;
+          const angle = distance > 0 ? Math.atan2(distanceY, distanceX) : index * 2.4;
+          offsetX += Math.cos(angle) * force;
+          offsetY += Math.sin(angle) * force;
+        }
+      }
+      butterfly.style.setProperty("--reaction-x", `${offsetX.toFixed(1)}px`);
+      butterfly.style.setProperty("--reaction-y", `${offsetY.toFixed(1)}px`);
+    });
+    butterflyResponsePending = false;
+  });
+};
+const clearButterflyPointer = () => {
+  butterflyPointer = null;
+  updateButterflyResponses();
+};
+const updateButterflyWind = () => {
+  const scrollY = window.scrollY;
+  const delta = Math.max(-120, Math.min(120, scrollY - previousScrollY));
+  previousScrollY = scrollY;
+  if (!interactiveButterflies.length || delta === 0) return;
+  butterflyWindX = delta * 0.055;
+  butterflyWindY = delta * -0.13;
+  updateButterflyResponses();
+  window.clearTimeout(butterflyWindResetTimer);
+  butterflyWindResetTimer = window.setTimeout(() => {
+    butterflyWindX = 0;
+    butterflyWindY = 0;
+    updateButterflyResponses();
+  }, 220);
+};
+if (interactiveButterflies.length) {
+  window.addEventListener(
+    "pointermove",
+    (event) => {
+      if (event.pointerType === "mouse") {
+        butterflyPointer = { x: event.clientX, y: event.clientY, radius: 250, strength: 22 };
+      } else if (butterflyPointer) {
+        butterflyPointer.x = event.clientX;
+        butterflyPointer.y = event.clientY;
+        window.clearTimeout(butterflyTouchResetTimer);
+        butterflyTouchResetTimer = window.setTimeout(clearButterflyPointer, 800);
+      }
+      updateButterflyResponses();
+    },
+    { passive: true },
+  );
+  window.addEventListener(
+    "pointerdown",
+    (event) => {
+      if (event.pointerType === "mouse") return;
+      butterflyPointer = { x: event.clientX, y: event.clientY, radius: 290, strength: 46 };
+      window.clearTimeout(butterflyTouchResetTimer);
+      butterflyTouchResetTimer = window.setTimeout(clearButterflyPointer, 800);
+      updateButterflyResponses();
+    },
+    { passive: true },
+  );
+  window.addEventListener(
+    "pointerup",
+    (event) => {
+      if (event.pointerType === "mouse") return;
+      window.clearTimeout(butterflyTouchResetTimer);
+      butterflyTouchResetTimer = window.setTimeout(clearButterflyPointer, 500);
+    },
+    { passive: true },
+  );
+  window.addEventListener("pointercancel", clearButterflyPointer, { passive: true });
+  window.addEventListener("pointerleave", clearButterflyPointer, { passive: true });
+  window.addEventListener("blur", clearButterflyPointer);
+}
 let scrollUpdatePending = false;
 const updateScrollProgress = () => {
   if (scrollUpdatePending) return;
@@ -72,8 +164,14 @@ const updateScrollProgress = () => {
   });
 };
 
-window.addEventListener("scroll", updateScrollProgress, { passive: true });
-window.addEventListener("resize", updateScrollProgress);
+window.addEventListener("scroll", () => {
+  updateScrollProgress();
+  updateButterflyWind();
+}, { passive: true });
+window.addEventListener("resize", () => {
+  updateScrollProgress();
+  updateButterflyResponses();
+});
 updateScrollProgress();
 const countElements = document.querySelectorAll("[data-count-value]");
 const formatNumber = new Intl.NumberFormat("en");
@@ -177,6 +275,7 @@ const setupTurnstile = (form, canSubmit = () => true) => {
   const widget = form.querySelector("[data-turnstile]");
   const tokenField = form.querySelector('[name="turnstile_token"]');
   const status = form.querySelector(".turnstile-status");
+  const fallback = form.querySelector(".turnstile-fallback");
   const submitButton = form.querySelector('button[type="submit"]');
   let widgetId = null;
   const updateSubmitButton = () => {
@@ -205,6 +304,7 @@ const setupTurnstile = (form, canSubmit = () => true) => {
         action: widget.dataset.action,
         callback: (token) => {
           tokenField.value = token;
+          if (fallback) fallback.hidden = true;
           setStatus("");
           updateSubmitButton();
         },
@@ -216,12 +316,14 @@ const setupTurnstile = (form, canSubmit = () => true) => {
         "error-callback": () => {
           tokenField.value = "";
           setStatus("Spam protection is unavailable. Please refresh the page and try again.", true);
+          if (fallback) fallback.hidden = false;
           updateSubmitButton();
         },
       });
     })
     .catch((error) => {
       setStatus(error instanceof Error ? error.message : "Spam protection is unavailable.", true);
+      if (fallback) fallback.hidden = false;
     });
 
   return { reset, updateSubmitButton };
