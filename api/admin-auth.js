@@ -33,10 +33,10 @@ module.exports = async (request, response) => {
     return;
   }
 
-  const redirect = new URL("/admin.html", siteUrl).toString();
+  const supabaseBaseUrl = supabaseUrl.replace(/\/+$/, "");
   const endpoint = mode === "password"
-    ? `${supabaseUrl.replace(/\/+$/, "")}/auth/v1/token?grant_type=password`
-    : `${supabaseUrl.replace(/\/+$/, "")}/auth/v1/otp?redirect_to=${encodeURIComponent(redirect)}`;
+    ? `${supabaseBaseUrl}/auth/v1/token?grant_type=password`
+    : `${supabaseBaseUrl}/auth/v1/otp?redirect_to=${encodeURIComponent(new URL("/admin.html", siteUrl).toString())}`;
   const body = mode === "password"
     ? { email, password }
     : { email, create_user: false };

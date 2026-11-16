@@ -63,7 +63,6 @@ const configuredAdminEnvironment = {
   SUPABASE_URL: "https://supabase.example",
   SUPABASE_ANON_KEY: "test-anon-key",
   ADMIN_EMAIL: "admin@example.com",
-  PUBLIC_SITE_URL: "https://dream-events.example",
 };
 
 test("the authorized admin can sign in with a password without exposing refresh credentials", async (t) => {
@@ -132,7 +131,10 @@ test("password sign-in returns the same generic error for an incorrect password"
 });
 
 test("the admin can still request a magic link as a password sign-in fallback", async (t) => {
-  await withEnvironment(configuredAdminEnvironment, async () => {
+  await withEnvironment({
+    ...configuredAdminEnvironment,
+    PUBLIC_SITE_URL: "https://dream-events.example",
+  }, async () => {
     const originalFetch = global.fetch;
     t.after(() => { global.fetch = originalFetch; });
     global.fetch = async (url, options) => {
