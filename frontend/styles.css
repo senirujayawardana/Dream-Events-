@@ -565,6 +565,36 @@ button.calendar-day:hover, button.calendar-day.is-selected { background: #e9f4f6
   .hero-actions { margin-top: 24px; }
   .hero-visual { height: min(84%, 510px); min-height: 0; }
 }
+@media (min-width: 901px) {
+  .butterfly-flight-one { animation-name: butterfly-flight-one-desktop; }
+  .butterfly-flight-two { animation-name: butterfly-flight-two-desktop; }
+  .butterfly-flight-three { animation-name: butterfly-flight-three-desktop; }
+  .butterfly-flight-seven { animation-name: butterfly-flight-seven-desktop; }
+  @keyframes butterfly-flight-one-desktop {
+    0%, 100% { transform: translate3d(0, 0, 0) rotate(-9deg) scale(.92); }
+    25% { transform: translate3d(8vw, -6vh, 0) rotate(9deg) scale(1.05); }
+    50% { transform: translate3d(24vw, -1vh, 0) rotate(17deg) scale(1.12); }
+    75% { transform: translate3d(13vw, 9vh, 0) rotate(-7deg) scale(1); }
+  }
+  @keyframes butterfly-flight-two-desktop {
+    0%, 100% { transform: translate3d(0, 0, 0) rotate(10deg) scale(1); }
+    25% { transform: translate3d(-9vw, -7vh, 0) rotate(-9deg) scale(.92); }
+    50% { transform: translate3d(-25vw, -2vh, 0) rotate(-16deg) scale(1.08); }
+    75% { transform: translate3d(-14vw, 8vh, 0) rotate(8deg) scale(.95); }
+  }
+  @keyframes butterfly-flight-three-desktop {
+    0%, 100% { transform: translate3d(0, 0, 0) rotate(-6deg) scale(.9); }
+    25% { transform: translate3d(10vw, -5vh, 0) rotate(10deg) scale(1.05); }
+    50% { transform: translate3d(22vw, 3vh, 0) rotate(15deg) scale(1.1); }
+    75% { transform: translate3d(7vw, 9vh, 0) rotate(-9deg) scale(.96); }
+  }
+  @keyframes butterfly-flight-seven-desktop {
+    0%, 100% { transform: translate3d(0, 0, 0) rotate(-7deg) scale(.94); }
+    25% { transform: translate3d(clamp(80px, 9vw, 160px), -6vh, 0) rotate(12deg) scale(1.08); }
+    50% { transform: translate3d(clamp(120px, 12vw, 220px), -1vh, 0) rotate(17deg) scale(.9); }
+    75% { transform: translate3d(clamp(90px, 11vw, 180px), 7vh, 0) rotate(-11deg) scale(1.04); }
+  }
+}
 @media (max-width: 900px) {
   .site-header { padding: 0 5%; }
   .hero { padding: 0 5%; grid-template-columns: .92fr 1.08fr; min-height: 600px; }
