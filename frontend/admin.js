@@ -109,12 +109,13 @@ const renderInquiry = (record) => {
   card.className = "admin-record-card admin-inquiry-card";
   const details = document.createElement("div");
   const kindLabel = record.kind === "reservation"
-    ? `Package reservation: ${record.package_name || "Event package"}`
+    ? `Package enquiry: ${record.package_name || "Event package"}`
     : record.kind === "sponsor" ? "Sponsor / partnership inquiry" : "Event inquiry";
   details.append(renderText("h3", kindLabel));
   details.append(renderText("p", `${record.name} · ${record.email}${record.phone ? ` · ${record.phone}` : ""}`));
   if (record.kind === "reservation") {
     details.append(renderText("p", `Dates: ${record.event_start_date || "Not specified"} – ${record.event_end_date || "Not specified"}`));
+    details.append(renderText("p", `Guests: ${record.guest_count ?? "Not specified"} · Location: ${record.venue || "Not specified"}`));
   } else if (record.kind === "event") {
     details.append(renderText("p", `${record.event_type || "Event"} · ${record.preferred_date || "Date not specified"} · ${record.venue || "Location not specified"}`));
   } else if (record.organization) {

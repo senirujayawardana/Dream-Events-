@@ -30,6 +30,18 @@ test("public pages declare unique titles, descriptions, canonicals, and large so
   });
 });
 
+test("legal pages have unique titles, descriptions, and canonical URLs", () => {
+  [
+    ["privacy.html", `${siteOrigin}/privacy.html`],
+    ["booking-terms.html", `${siteOrigin}/booking-terms.html`],
+  ].forEach(([file, canonical]) => {
+    const html = readFrontend(file);
+    assert.match(html, /<title>[^<]+<\/title>/);
+    assert.match(html, /<meta\s+name="description"\s+content="[^"]{70,170}"/);
+    assert.ok(html.includes(`<link rel="canonical" href="${canonical}" />`));
+  });
+});
+
 test("homepage structured data identifies the site and organization at the canonical origin", () => {
   const html = readFrontend("index.html");
   const schemas = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
@@ -55,11 +67,59 @@ test("sitemap lists indexable pages and robots excludes the admin page", () => {
     `${siteOrigin}/packages.html`,
     `${siteOrigin}/story.html`,
     `${siteOrigin}/investor-relations.html`,
+    `${siteOrigin}/privacy.html`,
+    `${siteOrigin}/booking-terms.html`,
   ]);
   assert.match(robots, /User-agent: \*\s+Allow: \//);
   assert.match(robots, /Disallow: \/admin\.html/);
   assert.match(robots, new RegExp(`Sitemap: ${siteOrigin.replaceAll(".", "\\.")}/sitemap\\.xml`));
   assert.doesNotMatch(sitemap, /admin\.html|reservation\.html|reservation-success\.html/);
+});
+
+test("public pages link to legal pages without exposing the admin sign-in URL", () => {
+  [
+    "index.html",
+    "packages.html",
+    "story.html",
+    "investor-relations.html",
+    "reservation.html",
+    "reservation-success.html",
+    "privacy.html",
+    "booking-terms.html",
+  ].forEach((file) => {
+    const html = readFrontend(file);
+    assert.doesNotMatch(html, /href="admin\.html"/, `${file} should not expose the admin sign-in link`);
+    assert.match(html, /href="privacy\.html"/, `${file} should link to the privacy policy`);
+    assert.match(html, /href="booking-terms\.html"/, `${file} should link to the booking terms`);
+  });
+});
+
+test("public inquiry forms link to the privacy policy and booking terms", () => {
+  [
+    ["index.html", "event-inquiry-form"],
+    ["investor-relations.html", "sponsor-inquiry-form"],
+    ["reservation.html", "reservation-form"],
+  ].forEach(([file, id]) => {
+    const html = readFrontend(file);
+    const form = html.match(new RegExp(`<form[^>]*id="${id}"[\\s\\S]*?</form>`))?.[0];
+    assert.ok(form, `${id} should exist`);
+    assert.match(form, /href="privacy\.html"/);
+    assert.match(form, /href="booking-terms\.html"/);
+  });
+});
+
+test("package pricing and reservation language describe enquiries rather than confirmed bookings", () => {
+  const packages = readFrontend("packages.html");
+  const reservation = readFrontend("reservation.html");
+  const success = readFrontend("reservation-success.html");
+  const normalizedPackages = packages.replace(/\s+/g, " ");
+
+  assert.match(normalizedPackages, /<strong>From LKR 900,000<\/strong>/);
+  assert.match(normalizedPackages, /<strong>Planning fee only:<\/strong> LKR 200,000/);
+  assert.doesNotMatch(packages, /Reserve this package/);
+  assert.match(reservation, /name="guest_count"/);
+  assert.match(reservation, /name="venue"/);
+  assert.match(success, /not a confirmed booking/i);
 });
 
 test("private and transactional pages are marked noindex", () => {

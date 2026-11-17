@@ -29,6 +29,16 @@ test("Vercel sends baseline browser security headers on every route", () => {
   inlineScriptHashes.forEach((hash) => assert.ok(csp.includes(hash), `CSP should allow JSON-LD script ${hash}`));
 });
 
+test("the admin sign-in page is not indexed or cached", () => {
+  const config = JSON.parse(fs.readFileSync(path.join(root, "vercel.json"), "utf8"));
+  const rule = config.headers.find((item) => item.source === "/admin.html");
+  const headerMap = new Map(rule?.headers.map(({ key, value }) => [key.toLowerCase(), value]));
+
+  assert.equal(headerMap.get("x-robots-tag"), "noindex, nofollow, noarchive");
+  assert.equal(headerMap.get("cache-control"), "no-store, max-age=0, must-revalidate");
+  assert.match(fs.readFileSync(path.join(root, "frontend", "admin.html"), "utf8"), /name="robots" content="noindex, nofollow, noarchive"/);
+});
+
 test("all public forms include server-verifiable Turnstile challenges", () => {
   const frontend = path.join(root, "frontend");
   const forms = [

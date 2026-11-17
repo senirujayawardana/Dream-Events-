@@ -43,11 +43,15 @@ create table if not exists public.inquiries (
   event_end_date date,
   preferred_date date,
   venue text,
+  guest_count integer check (guest_count > 0),
   organization text,
   message text not null default '',
   status text not null default 'new' check (status in ('new', 'contacted', 'closed')),
   created_at timestamptz not null default now()
 );
+
+alter table public.inquiries
+  add column if not exists guest_count integer check (guest_count > 0);
 
 create index if not exists events_published_date_idx
   on public.events (event_date)

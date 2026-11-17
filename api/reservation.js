@@ -37,6 +37,21 @@ module.exports = async (request, response) => {
   const email = typeof form.email === "string" ? form.email.trim() : "";
   const eventStartDate = typeof form.event_start_date === "string" ? form.event_start_date : "";
   const eventEndDate = typeof form.event_end_date === "string" ? form.event_end_date : "";
+  const locationProvided = form.venue !== undefined && form.venue !== null;
+  const venue = typeof form.venue === "string" ? form.venue.trim() : "";
+  const guestCountProvided = form.guest_count !== undefined && form.guest_count !== null && form.guest_count !== "";
+  const guestCountInput = typeof form.guest_count === "number"
+    ? form.guest_count
+    : typeof form.guest_count === "string" && form.guest_count.trim()
+      ? Number(form.guest_count)
+      : null;
+  const validGuestCount =
+    !guestCountProvided ||
+    ((typeof form.guest_count === "string" || typeof form.guest_count === "number") &&
+      Number.isSafeInteger(guestCountInput) &&
+      guestCountInput > 0 &&
+      guestCountInput <= 2147483647);
+  const guestCount = guestCountProvided ? guestCountInput : null;
   const customerComments =
     typeof form.customer_comments === "string" ? form.customer_comments.trim() : "";
   const packageKey = typeof form.package === "string" ? form.package : "";
@@ -51,10 +66,13 @@ module.exports = async (request, response) => {
     !isValidDate(eventStartDate) ||
     !isValidDate(eventEndDate) ||
     eventEndDate < eventStartDate ||
+    (locationProvided && typeof form.venue !== "string") ||
+    venue.length > 160 ||
+    !validGuestCount ||
     customerComments.length > 2000
   ) {
     respond(response, 400, {
-      error: "Check your contact details, event dates, and selected package.",
+      error: "Check your contact details, event dates, guest count, preferred location, and selected package.",
     });
     return;
   }
@@ -80,6 +98,8 @@ module.exports = async (request, response) => {
       package_name: selectedPackage.name,
       event_start_date: eventStartDate,
       event_end_date: eventEndDate,
+      venue: venue || null,
+      guest_count: guestCount,
       message: customerComments,
       status: "new",
     });
@@ -91,11 +111,13 @@ module.exports = async (request, response) => {
   }
 
   const details = [
-    "A new package reservation request was submitted.",
+    "A new package enquiry was submitted.",
     "",
     `Package: ${selectedPackage.name}`,
     `Category: ${selectedPackage.category}`,
     `Event period: ${eventStartDate} to ${eventEndDate}`,
+    `Guest count: ${guestCount ?? "Not specified"}`,
+    `Preferred location: ${venue || "Not specified"}`,
     `Name: ${customerName}`,
     `Mobile number: ${mobileNumber}`,
     `Email: ${email}`,
@@ -105,14 +127,14 @@ module.exports = async (request, response) => {
   try {
     await sendEmail({
       to: process.env.RESERVATION_EMAIL_TO || "dreammakerofc@gmail.com",
-      subject: `Reservation request: ${selectedPackage.name}`,
+      subject: `Package enquiry: ${selectedPackage.name}`,
       text: details,
       replyTo: email,
     });
     await sendEmail({
       to: email,
-      subject: "We received your reservation request — Dream Events",
-      text: `Hi ${customerName},\n\nThank you for your interest in ${selectedPackage.name}. We’ve received your event dates and our team will be in touch to discuss availability and next steps.\n\nDream Events`,
+      subject: "We received your package enquiry — Dream Events",
+      text: `Hi ${customerName},\n\nThank you for your interest in ${selectedPackage.name}. We’ve received your details and our team will be in touch to discuss availability and next steps. This enquiry is not a confirmed booking.\n\nDream Events`,
     });
   } catch (error) {
     notificationsSent = false;
@@ -123,8 +145,8 @@ module.exports = async (request, response) => {
     respond(response, notificationsSent ? 200 : 202, {
       status: notificationsSent ? "sent" : "saved_notification_failed",
       message: notificationsSent
-        ? "Your request has been received. We’ll be in touch soon."
-        : "Your request was saved, but email confirmation is temporarily unavailable. Please contact dreammakerofc@gmail.com if your reservation is urgent.",
+        ? "Your enquiry has been received. We’ll be in touch soon."
+        : "Your enquiry was saved, but email confirmation is temporarily unavailable. Please contact dreammakerofc@gmail.com if your enquiry is urgent.",
     });
     return;
   }

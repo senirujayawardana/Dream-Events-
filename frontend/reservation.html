@@ -5,19 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Send Dream Events your reservation request and details for your selected event package."
+      content="Send Dream Events an enquiry about your selected event package, including your guest count and preferred location."
     />
     <meta name="robots" content="noindex,follow" />
-    <meta property="og:title" content="Reserve a Package — Dream Events" />
-    <meta property="og:description" content="Share your event details with Dream Events to discuss a package reservation." />
+    <meta property="og:title" content="Package Enquiry — Dream Events" />
+    <meta property="og:description" content="Share your event details with Dream Events to discuss a package." />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Dream Events" />
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Reserve a Package — Dream Events" />
-    <meta name="twitter:description" content="Share your event details with Dream Events to discuss a package reservation." />
+    <meta name="twitter:title" content="Package Enquiry — Dream Events" />
+    <meta name="twitter:description" content="Share your event details with Dream Events to discuss a package." />
     <meta name="theme-color" content="#ffffff" />
     <link rel="icon" type="image/png" href="assets/dream-events-logo.png" />
-    <title>Reserve a Package — Dream Events</title>
+    <title>Package Enquiry — Dream Events</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -39,7 +39,6 @@
       <nav class="primary-nav" id="primary-nav" aria-label="Main navigation">
         <a href="story.html">Our story</a>
         <a href="investor-relations.html">Investor relations</a>
-        <a href="admin.html">Admin sign in</a>
         <a href="index.html#services">What we do</a>
         <a href="packages.html" aria-current="page">Packages</a>
         <a href="index.html#past-events">Our work</a>
@@ -51,7 +50,7 @@
       <section class="reservation-hero">
         <p class="eyebrow"><span class="eyebrow-line"></span> A beautiful event starts here</p>
         <h1>Let’s make it <em>happen.</em></h1>
-        <p>Share your details and our team will get in touch to discuss your reservation.</p>
+        <p>Share your details and our team will get in touch to discuss your plans and availability.</p>
       </section>
 
       <section class="reservation-section">
@@ -66,7 +65,7 @@
 
           <div class="reservation-form-panel">
             <h2>Your contact details</h2>
-            <p class="reservation-form-intro">We’ll use these details to follow up about your selected package.</p>
+            <p class="reservation-form-intro">We’ll use these details to follow up about your selected package. This form is an enquiry, not a confirmed booking.</p>
             <form
               id="reservation-form"
               name="package-reservation"
@@ -105,6 +104,14 @@
                 <input type="date" name="event_end_date" required />
               </label>
               <label class="reservation-field">
+                <span>Guest count (approximate, optional)</span>
+                <input type="number" name="guest_count" min="1" step="1" inputmode="numeric" />
+              </label>
+              <label class="reservation-field">
+                <span>Preferred location (optional)</span>
+                <input type="text" name="venue" maxlength="160" placeholder="Town or venue" />
+              </label>
+              <label class="reservation-field">
                 <span>Additional details or comments (optional)</span>
                 <textarea
                   name="customer_comments"
@@ -114,16 +121,14 @@
                 ></textarea>
               </label>
 
-              <p class="reservation-privacy">
-                Your details will be sent securely to Dream Events so our team can follow up.
-              </p>
               <div class="turnstile-widget" data-turnstile data-action="reservation"></div>
               <input type="hidden" name="turnstile_token" />
               <p class="turnstile-status" role="status" aria-live="polite">Loading spam protection…</p>
               <p class="reservation-status" id="reservation-status" role="status" aria-live="polite" hidden></p>
               <button class="button button-dark reservation-submit" type="submit" disabled>
-                Send reservation request <span aria-hidden="true">↗</span>
+                Send package enquiry <span aria-hidden="true">↗</span>
               </button>
+              <p class="reservation-privacy">By submitting, you acknowledge our <a href="privacy.html">Privacy Policy</a>. An enquiry is not a confirmed booking; see our <a href="booking-terms.html">Booking Terms</a>.</p>
               <p class="turnstile-disclosure">Spam protection by Cloudflare Turnstile.</p>
               <p class="turnstile-fallback">Having trouble? Email <a href="mailto:dreammakerofc@gmail.com">dreammakerofc@gmail.com</a>.</p>
             </form>
@@ -166,6 +171,10 @@
       <div class="footer-bottom">
         <span class="copyright">© <span id="year">2026</span> Dream Events. All rights reserved.</span>
         <span class="footer-location">Southern Province, Sri Lanka</span>
+        <nav class="footer-legal" aria-label="Legal">
+          <a href="privacy.html">Privacy policy</a>
+          <a href="booking-terms.html">Booking terms</a>
+        </nav>
       </div>
     </footer>
   </body>

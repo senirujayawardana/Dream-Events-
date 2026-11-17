@@ -382,7 +382,7 @@ if (reservationForm) {
   reservationForm.addEventListener("submit", (event) => {
     event.preventDefault();
     submitButton.disabled = true;
-    status.textContent = "Sending your reservation request…";
+    status.textContent = "Sending your package enquiry…";
     status.hidden = false;
 
     fetch(reservationForm.action, {
@@ -409,7 +409,7 @@ if (reservationForm) {
           );
         }
         if (!result || !["sent", "saved_notification_failed"].includes(result.status)) {
-          throw new Error("The reservation service returned an unexpected response. Please try again.");
+          throw new Error("The enquiry service returned an unexpected response. Please try again.");
         }
         window.location.assign(
           result.status === "saved_notification_failed"
@@ -430,7 +430,7 @@ if (reservationForm) {
 const notificationWarning = document.querySelector("#reservation-notification-warning");
 if (notificationWarning && new URLSearchParams(window.location.search).get("notification") === "unavailable") {
   notificationWarning.textContent =
-    "Your request was saved, but email confirmation is temporarily unavailable. Please contact dreammakerofc@gmail.com if your reservation is urgent.";
+    "Your enquiry was saved, but email confirmation is temporarily unavailable. Please contact dreammakerofc@gmail.com if your enquiry is urgent.";
   notificationWarning.hidden = false;
 }
 

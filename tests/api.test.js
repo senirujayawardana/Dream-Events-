@@ -289,6 +289,8 @@ test("reservation requests are saved before team and customer emails are sent", 
       email: "customer@example.com",
       event_start_date: "2027-03-10",
       event_end_date: "2027-03-11",
+      guest_count: "120",
+      venue: "Galle",
       customer_comments: "Test request",
       turnstile_token: "test-turnstile-token",
     });
@@ -297,9 +299,37 @@ test("reservation requests are saved before team and customer emails are sent", 
     assert.equal(result.body.status, "sent");
     assert.equal(calls.length, 3);
     assert.match(calls[0].url, /\/rest\/v1\/inquiries$/);
-    assert.equal(JSON.parse(calls[0].options.body).kind, "reservation");
+    const savedInquiry = JSON.parse(calls[0].options.body);
+    assert.equal(savedInquiry.kind, "reservation");
+    assert.equal(savedInquiry.guest_count, 120);
+    assert.equal(savedInquiry.venue, "Galle");
     assert.equal(calls[1].url, "https://api.resend.com/emails");
     assert.equal(calls[2].url, "https://api.resend.com/emails");
+    assert.match(JSON.parse(calls[1].options.body).text, /Guest count: 120/);
+    assert.match(JSON.parse(calls[1].options.body).text, /Preferred location: Galle/);
+    assert.match(JSON.parse(calls[2].options.body).text, /not a confirmed booking/i);
+  });
+});
+
+test("reservation requests reject invalid guest counts before external services are called", async (t) => {
+  await withEnvironment(configuredEnvironment, async () => {
+    const originalFetch = global.fetch;
+    t.after(() => { global.fetch = originalFetch; });
+    global.fetch = async () => { throw new Error("Unexpected network request"); };
+
+    for (const guestCount of ["0", "-1", "1.5", "many", "2147483648"]) {
+      const result = await invoke(reservationHandler, {
+        package: "executive",
+        customer_name: "Test Customer",
+        mobile_number: "+94712345678",
+        email: "customer@example.com",
+        event_start_date: "2027-03-10",
+        event_end_date: "2027-03-11",
+        guest_count: guestCount,
+      });
+
+      assert.equal(result.statusCode, 400, `guest count ${guestCount} should be rejected`);
+    }
   });
 });
 
